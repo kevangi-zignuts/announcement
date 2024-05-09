@@ -18,13 +18,16 @@ class UserAnnouncementController extends Controller
             'filter'      => 'nullable|string|in:past,upcoming',
             'per_page'    => 'nullable|integer|min:1|required_with:page_number',
             'page_number' => 'nullable|integer|min:1|required_with:per_page',
+        ], [
+            'filter.in' => 'The filter must be one of: past, upcoming.',
+            'filter.in'       => 'The selected filter is invalid.',
         ]);
         $perPage    = $request->input('per_page', 10);
         $pageNumber = $request->input('page_number', 1);
         $now        = Carbon::now();
         $query      = Announcement::query();
 
-        $query->where(function() use ($request, $now){
+        $query->where(function($query) use ($request, $now){
             if ($request->input('filter') && $request->input('filter') == 'past') {
                 $query->whereRaw("CONCAT(date, ' ', time) < '{$now->toDateTimeString()}'");
             }else if($request->input('filter') && $request->input('filter') == 'upcoming'){
