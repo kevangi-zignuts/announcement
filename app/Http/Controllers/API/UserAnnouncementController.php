@@ -14,15 +14,25 @@ class UserAnnouncementController extends Controller
      */
     public function index(Request $request)
     {
-        $now = Carbon::now();
-        $perPage = $request->input('per_page', 10);
-        $announcements = Announcement::query()->where(function ($query) use ($request, $now) {
+        $request->validate([
+            'filter'      => 'nullable|string|in:past,upcoming',
+            'per_page'    => 'nullable|integer|min:1|required_with:page_number',
+            'page_number' => 'nullable|integer|min:1|required_with:per_page',
+        ]);
+        $perPage    = $request->input('per_page', 10);
+        $pageNumber = $request->input('page_number', 1);
+        $now        = Carbon::now();
+        $query      = Announcement::query();
+
+        $query->where(function() use ($request, $now){
             if ($request->input('filter') && $request->input('filter') == 'past') {
                 $query->whereRaw("CONCAT(date, ' ', time) < '{$now->toDateTimeString()}'");
             }else if($request->input('filter') && $request->input('filter') == 'upcoming'){
                 $query->whereRaw("CONCAT(date, ' ', time) > '{$now->toDateTimeString()}'");
             }
-        })->paginate($perPage);
+        });
+
+        $announcements = $query->paginate($perPage, ['*'], 'page', $pageNumber);
         
         return response()->json(['announcements' => $announcements]);
     }
