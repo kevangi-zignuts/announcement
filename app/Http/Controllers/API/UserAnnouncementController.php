@@ -20,7 +20,6 @@ class UserAnnouncementController extends Controller
             'page_number' => 'nullable|integer|min:1|required_with:per_page',
         ], [
             'filter.in' => 'The filter must be one of: past, upcoming.',
-            'filter.in'       => 'The selected filter is invalid.',
         ]);
         $perPage    = $request->input('per_page', 10);
         $pageNumber = $request->input('page_number', 1);
