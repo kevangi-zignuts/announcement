@@ -37,7 +37,6 @@ class AuthenticatedSessionController extends Controller
 
         return response()->json([
             'message' => 'Invalid credentials',
-            'token'   => $token
         ], 401);
     }
 
